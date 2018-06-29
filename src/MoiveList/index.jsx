@@ -1,25 +1,30 @@
-import React, {PureComponent} from 'react';
-import {connect} from 'react-redux';
-import {fetchMoivesRequest} from '../actions/moives';
-import MoiveList from './MoiveList'
+import React from "react";
+import { Query } from "react-apollo";
+import gql from "graphql-tag";
+import MoiveList from "./MoiveList";
 
-class DataFetcher extends PureComponent {
-	componentDidMount () {
-		this.props.fetchMoivesRequest();
-	}
-	render () {
-		return <MoiveList {...this.props} />
-	}
-}
+const MoiveListFetch = () => {
+  return (
+    <Query
+      query={gql`
+        {
+          allFilms {
+            films {
+              id
+              title
+              openingCrawl
+            }
+          }
+        }
+      `}
+    >
+      {({ loading, error, data }) => {
+        if (loading) return "Loading ...";
+        if (error) return "error";
+        return <MoiveList moives={data.allFilms.films} />;
+      }}
+    </Query>
+  );
+};
 
-const mapDispatchToProps = {
-	fetchMoivesRequest
-}
-
-const mapStateToProps = (state) => {
-	return {
-		moives: state.moives
-	}
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(DataFetcher)
+export default MoiveListFetch;
